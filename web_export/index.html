@@ -262,8 +262,8 @@ body.sidebar-collapsed .sidebar-collapse { display:flex; }
 <li class="toc-h2"><a href="#31-the-big-picture-five-steps-from-spec-to-scanner">3.1 The big picture: five steps from spec to scanner</a></li>
 <li class="toc-h2"><a href="#32-lexical-specification-with-regexes-l3-s57">3.2 Lexical specification with regexes (L3 s.5–7)</a></li>
 <li class="toc-h2"><a href="#33-finite-automata-l3-s1016">3.3 Finite automata (L3 s.10–16)</a></li>
-<li class="toc-h3"><a href="#example-strings-ending-in-ab-l3-s13">Example: strings ending in ab (L3 s.13)</a></li>
 <li class="toc-h3"><a href="#example-strings-that-begin-with-1-and-end-with-0-l3-s14">Example: strings that begin with 1 and end with 0 (L3 s.14)</a></li>
+<li class="toc-h3"><a href="#example-strings-ending-in-ab-l3-s13">Example: strings ending in ab (L3 s.13)</a></li>
 <li class="toc-h2"><a href="#34-dfa-minimization-l3-s1832">3.4 DFA minimization (L3 s.18–32)</a></li>
 <li class="toc-h3"><a href="#why-minimize">Why minimize?</a></li>
 <li class="toc-h3"><a href="#the-equivalence-theorem-algorithm-l3-s21">The equivalence theorem algorithm (L3 s.21)</a></li>
@@ -1312,14 +1312,14 @@ digit      = 0 | 1 | 2 | ... | 9
 </table></div>
 <div class="callout callout-important"><div class="callout-title">Why both exist</div><div class="callout-body"><p>NFAs are <strong>easy to build</strong> from regexes (union/star/concat via ε-edges) but <strong>hard to execute</strong>. DFAs are <strong>fast to execute</strong> (one table lookup per character) but <strong>hard to build directly</strong>. So: build NFA, convert to DFA, then code the DFA.</p></div></div>
 
-<h3 id="example-strings-ending-in-ab-l3-s13">Example: strings ending in <code>ab</code> (L3 s.13)</h3>
+<h3 id="example-strings-that-begin-with-1-and-end-with-0-l3-s14">Example: strings that begin with <code>1</code> and end with <code>0</code> (L3 s.14)</h3>
 <p>DFA (the accepting state is <code>S2</code>):</p>
 <figure class="tikz-card"><img src="diagrams/diagram-15.svg" alt="TikZ diagram 15" loading="lazy"></figure>
-<p>NFA for the same language is simpler to write: a start state goes to the second state on <code>a</code>, loops on <code>a,b</code>, then goes to accept on <code>b</code>.</p>
+<p>NFA for the same language is simpler to write: a start state goes to the second state on <code>1</code>, loops on <code>0,1</code>, then goes to accept on <code>0</code>.</p>
 <figure class="tikz-card"><img src="diagrams/diagram-16.svg" alt="TikZ diagram 16" loading="lazy"></figure>
 <div class="callout callout-note"><div class="callout-title">Both recognize the same language</div><div class="callout-body"><p><code>L = { w | w ends with "ab" }</code>. The NFA "guesses" where the final <code>ab</code> begins; the DFA tracks the longest suffix seen so far.</p></div></div>
 
-<h3 id="example-strings-that-begin-with-1-and-end-with-0-l3-s14">Example: strings that begin with <code>1</code> and end with <code>0</code> (L3 s.14)</h3>
+<h3 id="example-strings-ending-in-ab-l3-s13">Example: strings ending in <code>ab</code> (L3 s.13)</h3>
 <p>Regex: <code>1 Σ* 0</code>.</p>
 <figure class="tikz-card"><img src="diagrams/diagram-17.svg" alt="TikZ diagram 17" loading="lazy"></figure>
 <ul>

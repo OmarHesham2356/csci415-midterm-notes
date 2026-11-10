@@ -1005,14 +1005,14 @@ DFA (the accepting state is `S2`):
 \node[st] (N1) at (0,-2.1) {\(N_1\)};
 \node[acc] (N2) at (0,-4.2) {\(N_2\)};
 \draw[arr] (start) -- (N0);
-\draw[arr] (N0) edge[loop left] node[left] {\(a, b\)} (N0);
-\draw[arr] (N0) -- node[right] {\(a\)} (N1);
-\draw[arr] (N1) -- node[right] {\(b\)} (N2);
+\draw[arr] (N0) edge[loop left] node[left] {\(0, 1\)} (N0);
+\draw[arr] (N0) -- node[right] {\(1\)} (N1);
+\draw[arr] (N1) -- node[right] {\(0\)} (N2);
 \end{tikzpicture}
 \end{document}
 ```
 
-NFA for the same language is simpler to write: a start state goes to the second state on `a`, loops on `a,b`, then goes to accept on `b`.
+NFA for the same language is simpler to write: a start state goes to the second state on `1`, loops on `0,1`, then goes to accept on `0`.
 
 ```tikz
 \usetikzlibrary{automata, positioning, arrows.meta}
@@ -1275,13 +1275,14 @@ Minimal DFA:
   tnode/.style={draw, rounded corners=3pt, inner sep=3pt, minimum height=0.55cm, align=center}
 ]
 \node[dot] (start) at (0,0.95) {};
-\node[st] (S1) at (0,0) {1};
-\node[st] (S2) at (0,-2.1) {2};
+\node[acc] (S1) at (0,0) {1};
+\node[acc] (S2) at (0,-2.1) {2};
 \node[acc] (S3) at (0,-4.2) {3};
 \draw[arr] (start) -- (S1);
-\draw[arr] (S1) -- node[right] {letter} (S2);
-\draw[arr] (S2) edge[loop right] node[right] {letter, digit} (S2);
-\draw[arr] (S2) -- node[right] {other} (S3);
+\draw[arr] (S1) -- node[right] {\(a\)} (S2);
+\draw[arr] (S1) -- node[left] {\(\varepsilon\)} (S3);
+\draw[arr] (S2) edge[loop right] node[right] {\(b\)} (S2);
+\draw[arr] (S3) edge[loop right] node[right] {\(b\)} (S3);
 \end{tikzpicture}
 \end{document}
 ```
@@ -1328,14 +1329,12 @@ This works for the identifier DFA:
 \node[st] (qi) at (0,-1.3) {\(q_i\)};
 \node[st] (A) at (0,-2.8) {\(A\)};
 \node[st] (B) at (0,-4.3) {\(B\)};
-\node[st] (qf) at (0,-5.8) {\(q_f\)};
-\node[acc] (end) at (0,-7.4) {};
+\node[acc] (qf) at (0,-5.8) {\(q_f\)};
 \draw[arr] (start) -- (qi);
 \draw[arr] (qi) -- node[right] {\(\varepsilon\)} (A);
-\draw[arr] (A) -- node[right] {\(0\)} (B);
-\draw[arr] (B) edge[bend right=55] node[right=1pt] {\(1\)} (A);
+\draw[arr] (A) -- node[right] {letter} (B);
+\draw[arr] (B) edge[loop right] node[right] {letter, digit} (B);
 \draw[arr] (B) -- node[right] {\(\varepsilon\)} (qf);
-\draw[arr] (qf) -- (end);
 \end{tikzpicture}
 \end{document}
 ```
@@ -1510,19 +1509,9 @@ Eliminate `A`:
 ]
 \node[dot] (start) at (0,0.95) {};
 \node[st] (qi) at (0,0) {\(q_i\)};
-\node[st] (q2) at (0,-2.0) {\(q_2\)};
-\node[st] (q4) at (-2.6,-4.0) {\(q_4\)};
-\node[st] (q3) at (0,-4.0) {\(q_3\)};
-\node[st] (q5) at (2.6,-4.0) {\(q_5\)};
-\node[acc] (qf) at (0,-6.0) {\(q_f\)};
+\node[acc] (qf) at (0,-2.5) {\(q_f\)};
 \draw[arr] (start) -- (qi);
-\draw[arr] (qi) -- node[right] {\(a\)} (q2);
-\draw[arr] (q2) -- node[above left] {\(b\)} (q4);
-\draw[arr] (q2) -- node[right] {\(c\)} (q3);
-\draw[arr] (q2) -- node[above right] {\(d\)} (q5);
-\draw[arr] (q4) -- node[left] {\(\varepsilon\)} (qf);
-\draw[arr] (q3) -- node[right] {\(\varepsilon\)} (qf);
-\draw[arr] (q5) -- node[right] {\(\varepsilon\)} (qf);
+\draw[arr] (qi) -- node[right] {\(0(10)^*\)} (qf);
 \end{tikzpicture}
 \end{document}
 ```
@@ -1553,13 +1542,17 @@ Eliminate `B`: the regex is **`0(10)*`**.
   level 2/.style={sibling distance=2.2cm},
   edge from parent/.style={draw, ->, semithick}
 ]
-\node[tnode] {exp}
-  child {node[tnode] {exp}
-    child {node[tnode] {number}}}
-  child {node[tnode] {op}
-    child {node[tnode] {\(+\)}}}
-  child {node[tnode] {exp}
-    child {node[tnode] {number}}};
+\node[dot] (start) at (0,0.95) {};
+\node[st] (qi) at (0,0) {\(q_i\)};
+\node[st] (q2) at (0,-2.0) {\(q_2\)};
+\node[acc] (q4) at (-2.6,-4.0) {\(q_4\)};
+\node[acc] (q3) at (0,-4.0) {\(q_3\)};
+\node[acc] (q5) at (2.6,-4.0) {\(q_5\)};
+\draw[arr] (start) -- (qi);
+\draw[arr] (qi) -- node[right] {\(a\)} (q2);
+\draw[arr] (q2) -- node[above left] {\(b\)} (q4);
+\draw[arr] (q2) -- node[right] {\(c\)} (q3);
+\draw[arr] (q2) -- node[above right] {\(d\)} (q5);
 \end{tikzpicture}
 \end{document}
 ```
@@ -2257,15 +2250,9 @@ All three produce the same parse tree:
   edge from parent/.style={draw, ->, semithick}
 ]
 \node[tnode] {E}
-  child {node[tnode] {E: int}}
-  child {node[tnode] {Op: \(*\)}}
-  child {node[tnode] {E}
-    child {node[tnode] {(}}
-    child {node[tnode] {E}
-      child {node[tnode] {E: int}}
-      child {node[tnode] {Op: \(+\)}}
-      child {node[tnode] {E: int}}}
-    child {node[tnode] {)}}};
+  child {node[tnode] {E: number}}
+  child {node[tnode] {Op: \(+\)}}
+  child {node[tnode] {E: number}};
 \end{tikzpicture}
 \end{document}
 ```
@@ -2316,9 +2303,15 @@ Parse tree:
   level 1/.style={sibling distance=1.6cm},
   edge from parent/.style={draw, ->, semithick}
 ]
-\node[tnode] {\(+\)}
-  child {node[tnode] {3}}
-  child {node[tnode] {4}};
+\node[tnode] {\(*\)}
+  child {node[tnode] {E}
+    child {node[tnode] {(}}
+    child {node[tnode] {E}
+      child {node[tnode] {E: number}}
+      child {node[tnode] {Op: \(-\)}}
+      child {node[tnode] {E: number}}}
+    child {node[tnode] {)}}}
+  child {node[tnode] {E: number}};
 \end{tikzpicture}
 \end{document}
 ```
@@ -2359,11 +2352,16 @@ E => E Op E
   level 2/.style={sibling distance=1.8cm},
   edge from parent/.style={draw, ->, semithick}
 ]
-\node[tnode] {\(*\)}
-  child {node[tnode] {\(-\)}
-    child {node[tnode] {34}}
-    child {node[tnode] {3}}}
-  child {node[tnode] {42}};
+\node[tnode] {E}
+  child {node[tnode] {E: int}}
+  child {node[tnode] {Op: \(*\)}}
+  child {node[tnode] {E}
+    child {node[tnode] {(}}
+    child {node[tnode] {E}
+      child {node[tnode] {E: int}}
+      child {node[tnode] {Op: \(+\)}}
+      child {node[tnode] {E: int}}}
+    child {node[tnode] {)}}};
 \end{tikzpicture}
 \end{document}
 ```
@@ -2393,10 +2391,9 @@ The principle of **syntax-directed translation**: the meaning of `3 + 4` should 
   level 1/.style={sibling distance=1.7cm},
   edge from parent/.style={draw, ->, semithick}
 ]
-\node[tnode] {seq}
-  child {node[tnode] {s}}
-  child {node[tnode] {s}}
-  child {node[tnode] {s}};
+\node[tnode] {\(+\)}
+  child {node[tnode] {3}}
+  child {node[tnode] {4}};
 \end{tikzpicture}
 \end{document}
 ```
@@ -2422,11 +2419,11 @@ For `(34 - 3) * 42`:
   level 2/.style={sibling distance=2.2cm},
   edge from parent/.style={draw, ->, semithick}
 ]
-\node[tnode] {\(+\)}
-  child {node[tnode] {\(*\)}
-    child {node[tnode] {int}}
-    child {node[tnode] {int}}}
-  child {node[tnode] {int}};
+\node[tnode] {\(*\)}
+  child {node[tnode] {\(-\)}
+    child {node[tnode] {34}}
+    child {node[tnode] {3}}}
+  child {node[tnode] {42}};
 \end{tikzpicture}
 \end{document}
 ```
@@ -2470,11 +2467,10 @@ Grammar: `stmt-sequence → stmt ; stmt-sequence | stmt`, `stmt → s`. Parse tr
   level 2/.style={sibling distance=2.2cm},
   edge from parent/.style={draw, ->, semithick}
 ]
-\node[tnode] {\(*\)}
-  child {node[tnode] {int}}
-  child {node[tnode] {\(+\)}
-    child {node[tnode] {int}}
-    child {node[tnode] {int}}};
+\node[tnode] {seq}
+  child {node[tnode] {s}}
+  child {node[tnode] {s}}
+  child {node[tnode] {s}};
 \end{tikzpicture}
 \end{document}
 ```
@@ -2537,13 +2533,13 @@ Two parse trees:
 \node[tnode] {exp}
   child {node[tnode] {exp}
     child {node[tnode] {term}
-      child {node[tnode] {factor: number 34}}}}
-  child {node[tnode] {addop: \(-\)}}
+      child {node[tnode] {term}
+        child {node[tnode] {factor: int}}}
+      child {node[tnode] {mulop: \(*\)}}
+      child {node[tnode] {factor: int}}}}
+  child {node[tnode] {addop: \(+\)}}
   child {node[tnode] {term}
-    child {node[tnode] {term}
-      child {node[tnode] {factor: number 3}}}
-    child {node[tnode] {mulop: \(*\)}}
-    child {node[tnode] {factor: number 42}}};
+    child {node[tnode] {factor: int}}};
 \end{tikzpicture}
 \end{document}
 ```
@@ -2568,12 +2564,16 @@ Two parse trees:
   edge from parent/.style={draw, ->, semithick}
 ]
 \node[tnode] {exp}
-  child {node[tnode] {exp}
-    child {node[tnode] {exp: 34}}
-    child {node[tnode] {addop: \(-\)}}
-    child {node[tnode] {term: 3}}}
-  child {node[tnode] {addop: \(-\)}}
-  child {node[tnode] {term: 42}};
+  child {node[tnode] {term}
+    child {node[tnode] {factor: int}}}
+  child {node[tnode] {mulop: \(*\)}}
+  child {node[tnode] {factor}
+    child {node[tnode] {(}}
+    child {node[tnode] {exp}
+      child {node[tnode] {exp: int}}
+      child {node[tnode] {addop: \(+\)}}
+      child {node[tnode] {term: int}}}
+    child {node[tnode] {)}}};
 \end{tikzpicture}
 \end{document}
 ```
@@ -2656,15 +2656,16 @@ With the cascade grammar, the tree is:
   level 4/.style={sibling distance=2.6cm},
   edge from parent/.style={draw, ->, semithick}
 ]
-\node[tnode] {statement}
-  child {node[tnode] {if-stmt}
-    child {node[tnode] {if ( 0 )}}
-    child {node[tnode] {statement}
-      child {node[tnode] {if-stmt (inner)}
-        child {node[tnode] {if ( 1 )}}
-        child {node[tnode] {statement: other}}}}
-    child {node[tnode] {else}}
-    child {node[tnode] {statement: other}}};
+\node[tnode] {exp}
+  child {node[tnode] {exp}
+    child {node[tnode] {term}
+      child {node[tnode] {factor: 34}}}
+    child {node[tnode] {addop: \(-\)}}
+    child {node[tnode] {term}
+      child {node[tnode] {term}
+        child {node[tnode] {factor: 3}}}
+      child {node[tnode] {mulop: \(*\)}}
+      child {node[tnode] {factor: 42}}}};
 \end{tikzpicture}
 \end{document}
 ```
@@ -2696,16 +2697,13 @@ With left recursion, the tree groups as `(34 - 3) - 42`:
   level 4/.style={sibling distance=2.4cm},
   edge from parent/.style={draw, ->, semithick}
 ]
-\node[tnode] {decl}
-  child {node[tnode] {type: float}}
-  child {node[tnode] {id-list}
-    child {node[tnode] {id: x}}
-    child {node[tnode] {,}}
-    child {node[tnode] {id-list}
-      child {node[tnode] {id: y}}
-      child {node[tnode] {,}}
-      child {node[tnode] {id-list}
-        child {node[tnode] {id: z}}}}};
+\node[tnode] {exp}
+  child {node[tnode] {exp}
+    child {node[tnode] {exp: 34}}
+    child {node[tnode] {addop: \(-\)}}
+    child {node[tnode] {term: 3}}}
+  child {node[tnode] {addop: \(-\)}}
+  child {node[tnode] {term: 42}};
 \end{tikzpicture}
 \end{document}
 ```
@@ -2748,17 +2746,15 @@ Two parse trees:
   level 3/.style={sibling distance=2.8cm},
   edge from parent/.style={draw, ->, semithick}
 ]
-\node[tnode] {Parsers}
-  child {node[tnode] {Top-Down}
-    child {node[tnode] {Recursive Descent\\{\footnotesize backtracking}}}
-    child {node[tnode] {Non-Recursive /\\Predictive (LL(1))}}}
-  child {node[tnode] {Bottom-Up}
-    child {node[tnode] {LR Parsers}
-      child {node[tnode] {LR(0)}}
-      child {node[tnode] {SLR(1)}}
-      child {node[tnode] {LALR(1)}}
-      child {node[tnode] {CLR(1)}}}
-    child {node[tnode] {Operator\\Precedence}}};
+\node[tnode] {statement}
+  child {node[tnode] {if-stmt}
+    child {node[tnode] {if ( 0 )}}
+    child {node[tnode] {statement}
+      child {node[tnode] {if-stmt (inner)}
+        child {node[tnode] {if ( 1 )}}
+        child {node[tnode] {statement: other}}}}
+    child {node[tnode] {else}}
+    child {node[tnode] {statement: other}}};
 \end{tikzpicture}
 \end{document}
 ```
@@ -2870,21 +2866,16 @@ Parse tree:
   darr/.style={->, semithick, dashed},
   tnode/.style={draw, rounded corners=3pt, inner sep=3pt, minimum height=0.55cm, align=center}
 ]
-\node[box] (S) at (0,0) {Source};
-\node[box] (P) at (0,-1.8) {Preprocessor};
-\node[box] (C) at (0,-3.6) {Compiler};
-\node[box] (A) at (0,-5.4) {Assembler};
-\node[box] (L) at (0,-7.2) {Linker};
-\node[box] (LD) at (0,-9.0) {Loader};
-\node[box] (R) at (0,-10.8) {Execution};
-\node[box, minimum width=4.2cm] (LIB) at (5.2,-7.2) {Libraries /\\object modules};
-\draw[arr] (S) -- (P);
-\draw[arr] (P) -- (C);
-\draw[arr] (C) -- (A);
-\draw[arr] (A) -- (L);
-\draw[arr] (L) -- (LD);
-\draw[arr] (LD) -- (R);
-\draw[arr] (LIB) -- (L);
+\node[tnode] {decl}
+  child {node[tnode] {type}
+    child {node[tnode] {float}}}
+  child {node[tnode] {id-list}
+    child {node[tnode] {id: x}}
+    child {node[tnode] {,}}
+    child {node[tnode] {id-list}
+      child {node[tnode] {id: y}}
+      child {node[tnode] {,}}
+      child {node[tnode] {id: z}}}};
 \end{tikzpicture}
 \end{document}
 ```
@@ -3051,17 +3042,17 @@ Parse tree:
   darr/.style={->, semithick, dashed},
   tnode/.style={draw, rounded corners=3pt, inner sep=3pt, minimum height=0.55cm, align=center}
 ]
-\node[dot] (start) at (0,0.95) {};
-\node[st] (A) at (0,0) {\(A\)};
-\node[st] (B) at (-2.5,-2.0) {\(B\)};
-\node[st] (D) at (2.5,-2.0) {\(D\)\\{\footnotesize dead}};
-\node[acc] (C) at (0,-4.0) {\(C\)};
-\draw[arr] (start) -- (A);
-\draw[arr] (A) -- node[above left] {\(1\)} (B);
-\draw[arr] (A) -- node[above right] {\(0\)} (D);
-\draw[arr] (B) edge[loop left] node[left] {\(1\)} (B);
-\draw[arr] (B) -- node[above left] {\(0\)} (C);
-\draw[arr] (D) edge[loop right] node[right] {\(0, 1\)} (D);
+\node[tnode] {Parsers}
+  child {node[tnode] {Top-Down}
+    child {node[tnode] {Recursive Descent\\{\footnotesize backtracking}}}
+    child {node[tnode] {Non-Recursive /\\Predictive (LL(1))}}}
+  child {node[tnode] {Bottom-Up}
+    child {node[tnode] {LR Parsers}
+      child {node[tnode] {LR(0)}}
+      child {node[tnode] {SLR(1)}}
+      child {node[tnode] {LALR(1)}}
+      child {node[tnode] {CLR(1)}}}
+    child {node[tnode] {Operator\\Precedence}}};
 \end{tikzpicture}
 \end{document}
 ```
@@ -4449,18 +4440,21 @@ accept iff Accept[state]
   darr/.style={->, semithick, dashed},
   tnode/.style={draw, rounded corners=3pt, inner sep=3pt, minimum height=0.55cm, align=center}
 ]
-\node[dot] (start) at (0,0) {};
-\node[st] (qi) at (0,-1.3) {\(q_i\)};
-\node[st] (A) at (0,-2.8) {\(A\)};
-\node[st] (B) at (0,-4.3) {\(B\)};
-\node[st] (qf) at (0,-5.8) {\(q_f\)};
-\node[acc] (end) at (0,-7.4) {};
-\draw[arr] (start) -- (qi);
-\draw[arr] (qi) -- node[right] {\(\varepsilon\)} (A);
-\draw[arr] (A) -- node[right] {\(0\)} (B);
-\draw[arr] (B) edge[bend right=55] node[right=1pt] {\(1\)} (A);
-\draw[arr] (B) -- node[right] {\(\varepsilon\)} (qf);
-\draw[arr] (qf) -- (end);
+\node[box] (S) at (0,0) {Source program (.c)};
+\node[box] (P) at (0,-1.7) {Preprocessor};
+\node[box] (C) at (0,-3.4) {Compiler};
+\node[box] (A) at (0,-5.1) {Assembler};
+\node[box] (L) at (0,-6.8) {Linker};
+\node[box] (LD) at (0,-8.5) {Loader};
+\node[box] (R) at (0,-10.2) {Execution};
+\node[box, minimum width=4.2cm] (LIB) at (5.2,-6.8) {Libraries /\\object modules};
+\draw[arr] (S) -- (P);
+\draw[arr] (P) -- (C);
+\draw[arr] (C) -- (A);
+\draw[arr] (A) -- (L);
+\draw[arr] (L) -- (LD);
+\draw[arr] (LD) -- (R);
+\draw[arr] (LIB) -- (L);
 \end{tikzpicture}
 \end{document}
 ```
@@ -4885,4 +4879,3 @@ The table is in §6.7. `STMT → EXPR ;` can begin with any terminal that can be
 ```chatgpt-ui
 {"suggest_automation": {"label": "Run the three-question warm-up checkpoint at the start of each study session; if you miss one, re-read that section before continuing."}}
 ```
-
