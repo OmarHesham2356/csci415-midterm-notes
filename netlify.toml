@@ -1,0 +1,15 @@
+# The site is pre-built into web_export/ by build.py, so Netlify only has to
+# serve static files. Rebuild locally with: .venv/bin/python build.py
+[build]
+  publish = "web_export"
+
+[[headers]]
+  for = "/diagrams/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
